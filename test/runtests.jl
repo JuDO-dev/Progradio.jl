@@ -1,6 +1,4 @@
-using Progradio
+using Progradio: Projection, Binding
 using Test
 
-@testset "Progradio.jl" begin
-    # Write your tests here.
-end
+@testset "Operators" begin include("operators.jl") end
