@@ -15,7 +15,7 @@
 
 Solve nonlinear optimisation problems subject to simple bounds (box-constraints), of the form
 
-$$\underset{x}{\text{min}} \, f(x) \quad \text{s.t.} \, \, x_{\ell} \leq x \leq x_u,$$
+$$\min_x {f(x)} \quad \text{s.t.} \, \, x_{\ell} \leq x \leq x_u,$$
 
 near an initial guess $x_0$.
 

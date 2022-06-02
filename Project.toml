@@ -3,6 +3,9 @@ uuid = "51b56db3-d662-4c62-b876-96e861d9ac15"
 authors = ["astroEduardo <72969764+astroEduardo@users.noreply.github.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
 [compat]
 julia = "1.6"
 
