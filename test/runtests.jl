@@ -1,4 +1,13 @@
-using Progradio: Projection, Binding
 using Test
+using Progradio
+const P = Progradio
 
-@testset "Operators" begin include("operators.jl") end
+# Common
+include("operators.jl")
+include("problems.jl")
+
+# Line-search
+#include("Armijo.jl")
+
+# Optimisers
+#include("conjugateGradient.jl")

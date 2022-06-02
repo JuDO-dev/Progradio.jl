@@ -4,7 +4,7 @@ using LinearAlgebra: dot, norm
 
 # Common
 include("operators.jl")
-#include("problems.jl")
+include("problems.jl")
 
 # Iterator interface
 #abstract type ProgradioIterator{T<:AbstractFloat} end
@@ -28,7 +28,7 @@ include("operators.jl")
 # Utils
 #include("optimality.jl")
 
-#export SBProblem,
+export SBProblem#,
 #    Armijo,
 #    ConjugateGradient, FletcherReeves, PolakRibiere
 
