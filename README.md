@@ -1,5 +1,7 @@
 [//]: Logo
-<span style="display:block;text-align:center">![Logo](/docs/src/assets/logo256px.svg)</span>
+<p align="center">
+    <img src="./docs/src/assets/logo256px.svg">
+</p>
 
 [//]: Badges
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuDO-dev.github.io/Progradio.jl/stable)
