@@ -1,67 +1,62 @@
 [//]: Logo
-<p align="center">
-<img
-    src="./docs/src/assets/logo256px.svg"
-    width=256px
-    >
-</p>
+<span style="display:block;text-align:center">![Logo](/docs/src/assets/logo256px.svg)</span>
 
-# Projected Gradient Optimisation
 [//]: Badges
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuDO-dev.github.io/Progradio.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuDO-dev.github.io/Progradio.jl/dev)
 [![Build Status](https://github.com/JuDO-dev/Progradio.jl/actions/workflows/CI.yml/badge.svg?branch=dev)](https://github.com/JuDO-dev/Progradio.jl/actions/workflows/CI.yml?query=branch%3Adev)
 [![Coverage](https://codecov.io/gh/JuDO-dev/Progradio.jl/branch/dev/graph/badge.svg)](https://codecov.io/gh/JuDO-dev/Progradio.jl)
 
-Solve nonlinear optimisation problems subject to simple bounds (box-constraints), of the form
-
-$$\min_x {f(x)} \quad \text{s.t.} \, \, x_{\ell} \leq x \leq x_u,$$
-
-near an initial guess $x_0$.
-
-## Installation
+# Installation
 ```julia
 using Pkg; Pkg.add("Progradio")
 ```
 
-## Algorithms
+# Box-Constrained Optimization
 
-| Type | Summary | Flavours |
-| --- | --- | --- |
-| `ConjugateGradient()` | Uses the conjugacy of directions; <br> Requires $\nabla f$; <br> Stores $O(n)$ values. | `HagerZhang` <br> `PolakRibiere`[^Schwartz] <br> `FletcherReeves` |
-| `QuasiNewton()` | Approximates the Hessian of $f$; <br> Requires $\nabla f$; <br> Stores $O(m \times n)$ values. | `lBFGS`[WIP] |
+The problem can be formulated as:
+$$\min_x {f(x)} \quad \text{s.t.} \quad x_{\ell} \leq x \leq x_u,$$
+where $x, x_{\ell}, x_u \in \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$, near an initial guess $x_0$. Implemented as:
 
-where $n$ is the problem dimension ($x \in \mathbb{R}^n$) and $m$ is number of stored updates.
-
-### Line-search
-
-- `Armijo()` back-tracks until an Armijo-like condition[^Bertsekas] is satisfied;
-- `Wolfe()`[WIP]
-
-
-## Recommended usage with `solve()`
 ```julia
-using GalacticOptim
-using Progradio
+BCProblem(f, g!, x_ℓ, x_u, x_0)
+```
+where `g!` is the gradient $\nabla f$ defined in-place.  
 
+
+## Line-Search Optimizer: `Armijo(direction)`[^Bertsekas]
+
+| Direction | Summary | Variants |
+| --- | --- | --- |
+| Steepest Descent | Requires `g!` | `SteepestDescent()`
+| Conjugate Gradient[^Schwartz] | Requires `g!` <br> Restarts every `r` iterations | `HagerZhang(r)`[^Hager] <br> `PolakRibiere(r)` <br> `FletcherReeves(r)` |
+| Quasi-Newton | Requires `g!` <br> Stores `m` updates | `LBFGS(m)`[^Nocedal] |
+
+## Recommended usage with `solve(bcp, optimizer)`
+```julia
+# Problem
+bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
+
+# Solve
+solve(bcp, Armijo(HagerZhang(10)))
 ```
 
-## Advanced usage with `iterator()`
+## Advanced usage with `iterator(bcp, optimizer)`
 ```julia
-using Progradio
-
-# Simple-bounds problem
-sbp = SBProblem(f, ∇f!, x_0, x_ℓ, x_u);
-
-# Algorithm
-cg = ConjugateGradient(PolakRibiere(), Armijo());
+# Problem
+bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
 
 # Iterator
-I = iterator(sbp, cg, 20);
+I = iterator(bcp, Armijo(HagerZhang(10)));
+
+# Iterate
 collect(I)
 ```
 
-[^Schwartz]: Schwartz, A., and Polak, E., Family of Projected Descent Methods for Optimization Problems with Simple Bounds, Journal of Optimization Theory and Applications, Vol. 92, No. 1, pp. 1-31, 1997. 
+[^Bertsekas]: D. P. Bertsekas, "Projected Newton methods for optimization problems with simple constraints", SIAM Journal on Control and Optimization, Vol. 20, pp.221-246, 1982.
 
-[^Bertsekas]: Bertsekas, D. P., Projected Newton Methods for Optimization Problems with Simple Constraints, SIAM Journal on Control and Optimization, Vol. 20,
-pp. 221-246, 1982.
+[^Schwartz]: A. Schwartz and E. Polak, "A family of projected descent methods for optimization problems with simple bounds", Journal of Optimization Theory and Applications, Vol. 92, No. 1, pp. 1-32, 1997.
+
+[^Hager]: W. w. Hager and H. Zhang, "A new conjugate gradient method with guaranteed descent and an efficient line search", SIAM Journal on Optimization, Vol. 16, pp. 170-192, 2005.
+
+[^Nocedal]: J. Nocedal, "Updating quasi-Newton matrices with limited storage", Mathematics of Computation, Vol. 35, pp. 773-782, 1980.
