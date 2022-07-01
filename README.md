@@ -3,18 +3,20 @@
     <img src="./docs/src/assets/logo256px.svg">
 </p>
 
+# Projected Gradient Optimization
+
 [//]: Badges
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuDO-dev.github.io/Progradio.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuDO-dev.github.io/Progradio.jl/dev)
 [![Build Status](https://github.com/JuDO-dev/Progradio.jl/actions/workflows/CI.yml/badge.svg?branch=dev)](https://github.com/JuDO-dev/Progradio.jl/actions/workflows/CI.yml?query=branch%3Adev)
 [![Coverage](https://codecov.io/gh/JuDO-dev/Progradio.jl/branch/dev/graph/badge.svg)](https://codecov.io/gh/JuDO-dev/Progradio.jl)
 
-# Installation
+## Installation
 ```julia
 using Pkg; Pkg.add("Progradio")
 ```
 
-# Box-Constrained Optimization
+## Box-Constrained Optimization
 
 The problem can be formulated as:
 $$\min_x {f(x)} \quad \text{s.t.} \quad x_{\ell} \leq x \leq x_u,$$
@@ -26,7 +28,7 @@ BCProblem(f, g!, x_ℓ, x_u, x_0)
 where `g!` is the gradient $\nabla f$ defined in-place.  
 
 
-## Line-Search Optimizer: `Armijo(direction)`[^Bertsekas]
+### Line-Search Optimizer: `Armijo(direction)`[^Bertsekas]
 
 | Direction | Summary | Variants |
 | --- | --- | --- |
@@ -34,7 +36,7 @@ where `g!` is the gradient $\nabla f$ defined in-place.
 | Conjugate Gradient[^Schwartz] | Requires `g!` <br> Restarts every `r` iterations | `HagerZhang(r)`[^Hager] <br> `PolakRibiere(r)` <br> `FletcherReeves(r)` |
 | Quasi-Newton | Requires `g!` <br> Stores `m` updates | `LBFGS(m)`[^Nocedal] |
 
-## Recommended usage with `solve(bcp, optimizer)`
+### Recommended usage with `solve(bcp, optimizer)`
 ```julia
 # Problem
 bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
@@ -43,7 +45,7 @@ bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
 solve(bcp, Armijo(HagerZhang(10)))
 ```
 
-## Advanced usage with `iterator(bcp, optimizer)`
+### Advanced usage with `iterator(bcp, optimizer)`
 ```julia
 # Problem
 bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
