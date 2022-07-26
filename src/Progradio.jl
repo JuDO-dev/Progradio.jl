@@ -2,29 +2,34 @@ module Progradio
 
 using LinearAlgebra: dot, norm
 
-include("problems.jl")
-include("operators.jl")
-
-abstract type ProgradioIterator{F<:AbstractFloat} end
-Base.length(I::ProgradioIterator) = 1 + I.iterations;
-abstract type ProgradioIteratorState{F<:AbstractFloat} end
-
 abstract type ProgradioDirection{F<:AbstractFloat} end
-include("directions/steepestDescent.jl")
+abstract type ProgradioDirectionState{F<:AbstractFloat} end
+
+abstract type ProgradioOptimizer{F<:AbstractFloat, D<:ProgradioDirection} end
+abstract type ProgradioOptimizerState{F<:AbstractFloat, DS<:ProgradioDirectionState} end
+
+include("operators.jl")
+include("problems.jl")
+include("iterators.jl")
+
+#include("directions/steepestDescent.jl")
 #include("directions/conjugateGradient.jl")
 #include("directions/quasiNewton.jl")
 
-abstract type ProgradioOptimizer{F<:AbstractFloat} end
 #include("optimizers/lineSearch.jl")
+#include("optimizers/Armijo.jl")
+#include("optimizers/Wolfe.jl")
 #include("optimizers/trustRegion.jl")
 
 #include("optimality.jl")
+#include("solve.jl")
+
 #include("zoo.jl")
 
-export BCProblem,
-    SteepestDescent#,
-    #ConjugateGradient, HagerZhang, PolakRibiere, FletcherReeves#,
-    #QuasiNewton, LBFGS,
+export BCProblem, iterator#,
+    #SteepestDescent,
+    #FletcherReeves, PolakRibiere, HagerZhang,
+    #LBFGS,
     #Armijo,
-    #iterator
+    #optimality, solve, solve_to_optimality
 end

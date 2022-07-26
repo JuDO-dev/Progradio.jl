@@ -2,8 +2,8 @@ using Test
 using Progradio
 const P = Progradio
 
-include("problems.jl")
 include("operators.jl")
+include("problems.jl")
+include("iterators.jl")
 
 # Directions
-include("directions/steepestDescent.jl")

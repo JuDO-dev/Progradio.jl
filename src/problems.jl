@@ -11,5 +11,5 @@ struct BCProblem{F} <: ProgradioProblem{F}
 end
 
 Base.show(io::IO, p::ProgradioProblem) = print(io, typeof(p));
-Base.show(io::IO, ::MIME"text/plain", p::ProgradioProblem) =
-    print(io, typeof(p), " with ", length(p.x_0), " variables");
+Base.show(io::IO, ::MIME"text/plain", bcp::BCProblem) =
+    print(io, typeof(bcp), " with ", length(bcp.x_0), " variables.");
