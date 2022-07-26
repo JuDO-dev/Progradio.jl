@@ -23,18 +23,26 @@ $$\min_x {f(x)} \quad \text{s.t.} \quad x_{\ell} \leq x \leq x_u,$$
 where $x, x_{\ell}, x_u \in \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$, near an initial guess $x_0$. Implemented as:
 
 ```julia
-BCProblem(f, g!, x_ℓ, x_u, x_0)
+BCProblem(f, g!, x_ℓ, x_u, x_0);
 ```
 where `g!` is the gradient $\nabla f$ defined in-place.  
 
 
-### Line-Search Optimizer: `Armijo(direction)`[^Bertsekas]
+### Optimizers
+
+The following methods are implemented for `BCProblem`:
+
+- `Armijo()` is a line-search optimizer with an Armijo-like[^Bertsekas] condition;
+- [WIP]`Wolfe()` is a line-search optimizer with a Wolfe-like condition;
+- [WIP]`TrustRegion()`.
+
+Each used with a descent direction method:
 
 | Direction | Summary | Variants |
 | --- | --- | --- |
 | Steepest Descent | Requires `g!` | `SteepestDescent()`
-| Conjugate Gradient[^Schwartz] | Requires `g!` <br> Restarts every `r` iterations | `HagerZhang(r)`[^Hager] <br> `PolakRibiere(r)` <br> `FletcherReeves(r)` |
-| Quasi-Newton | Requires `g!` <br> Stores `m` updates | `LBFGS(m)`[^Nocedal] |
+| Conjugate Gradient[^Schwartz] | Restarts every $R$ iterations <br> Requires `g!` | `FletcherReeves()` <br> `PolakRibiere()` <br>  `HagerZhang()`[^Hager] |
+| Quasi-Newton | Stores $M$ updates <br> Requires `g!` | [WIP]`LBFGS(M)`[^Nocedal] |
 
 ### Recommended usage with `solve(bcp, optimizer)`
 ```julia
@@ -42,7 +50,7 @@ where `g!` is the gradient $\nabla f$ defined in-place.
 bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
 
 # Solve
-solve(bcp, Armijo(HagerZhang(10)))
+solve(bcp, Armijo(FletcherReeves(10)))
 ```
 
 ### Advanced usage with `iterator(bcp, optimizer)`
@@ -51,10 +59,10 @@ solve(bcp, Armijo(HagerZhang(10)))
 bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
 
 # Iterator
-I = iterator(bcp, Armijo(HagerZhang(10)));
+bci = iterator(bcp, Armijo(FletcherReeves(10)));
 
 # Iterate
-collect(I)
+collect(bci)
 ```
 
 [^Bertsekas]: D. P. Bertsekas, "Projected Newton methods for optimization problems with simple constraints", SIAM Journal on Control and Optimization, Vol. 20, pp.221-246, 1982.

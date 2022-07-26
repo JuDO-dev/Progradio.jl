@@ -13,23 +13,21 @@ include("problems.jl")
 include("iterators.jl")
 
 include("directions/steepestDescent.jl")
-#include("directions/conjugateGradient.jl")
+include("directions/conjugateGradient.jl")
 #include("directions/quasiNewton.jl")
 
-#include("optimizers/lineSearch.jl")
-#include("optimizers/Armijo.jl")
+include("optimizers/Armijo.jl")
 #include("optimizers/Wolfe.jl")
 #include("optimizers/trustRegion.jl")
 
+include("solve.jl")
 #include("optimality.jl")
-#include("solve.jl")
-
-#include("zoo.jl")
+include("zoo.jl")
 
 export BCProblem, iterator,
-    SteepestDescent#,
-    #FletcherReeves, PolakRibiere, HagerZhang,
+    SteepestDescent,
+    FletcherReeves, PolakRibiere, HagerZhang,
     #LBFGS,
-    #Armijo,
-    #optimality, solve, solve_to_optimality
+    Armijo, #Wolfe, TrustRegion,
+    solve#, optimality, solve_to_optimality
 end
