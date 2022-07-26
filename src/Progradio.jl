@@ -12,7 +12,7 @@ include("operators.jl")
 include("problems.jl")
 include("iterators.jl")
 
-#include("directions/steepestDescent.jl")
+include("directions/steepestDescent.jl")
 #include("directions/conjugateGradient.jl")
 #include("directions/quasiNewton.jl")
 
@@ -26,8 +26,8 @@ include("iterators.jl")
 
 #include("zoo.jl")
 
-export BCProblem, iterator#,
-    #SteepestDescent,
+export BCProblem, iterator,
+    SteepestDescent#,
     #FletcherReeves, PolakRibiere, HagerZhang,
     #LBFGS,
     #Armijo,
