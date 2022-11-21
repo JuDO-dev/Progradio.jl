@@ -16,19 +16,43 @@
 using Pkg; Pkg.add("Progradio")
 ```
 
-## Box-Constrained Optimization
+## 📦Box-Constrained Problems
+For minimizing a function subject to lower and upper bounds on the variables.
 
-The problem can be formulated as:
-$$\min_x {f(x)} \quad \text{s.t.} \quad x_{\ell} \leq x \leq x_u,$$
-where $x, x_{\ell}, x_u \in \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$, near an initial guess $x_0$. Implemented as:
+$$
+\begin{aligned}
+\min_x \quad      &f(x)\\
+\text{s.t.} \quad &\ell \leq x \leq u,
+\end{aligned}
+$$
+
+where $x, \ell, u \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Defined as:
 
 ```julia
-BCProblem(f, g!, x_ℓ, x_u, x_0);
+bcp = BCProblem(x_0, ℓ, u, f, g!);
 ```
-where `g!` is the gradient $\nabla f$ defined in-place.  
+where `x_0` is a feasible initial guess, and `g!` is the in-place function for the gradient $\nabla f$.
+
+## 📐Simplex-Box-Constrained Problems
+For minimizing a function with some of the variables constrained to the unit simplex. The remaining varaibles are constrained by lower and upper bounds.
+
+$$
+\begin{aligned}
+\min_x \quad        &f(x)\\
+\text{s.t.} \quad   &\sum_{j \in \mathcal{S}} x_j = 1, \quad x_j \geq 0 &\forall j \in \mathcal{S},\\
+                    &\ell_j \leq x_j \leq u_j &\forall j \notin \mathcal{S},
+\end{aligned}
+$$
+
+where $\mathcal{S}$ is a set of indices of $x$ in the unit simplex. Defined as:
+
+```julia
+sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
+```
 
 
-### Optimizers
+
+## Optimizers
 
 The following methods are implemented for `BCProblem`:
 
