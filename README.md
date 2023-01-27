@@ -17,29 +17,34 @@ using Pkg; Pkg.add("Progradio")
 ```
 
 ## ♾️Unconstrained Problems
+
 $$
 \begin{aligned}
 \min_x f(x)
 \end{aligned}
 $$
+
 where $x \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Given an initial guess `x_0::Vector` and an in-place gradient function `g!`, it is defined as:
 ```julia
 up = UProblem(x_0, f, g!);
 ```
 
 ## 📦Box-Constrained Problems
+
 $$
 \begin{aligned}
 \min_x \quad      &f(x)\\
 \text{s.t.} \quad &\ell \leq x \leq u,
 \end{aligned}
 $$
+
 where $\ell, u \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Defined as:
 ```julia
 bcp = BCProblem(x_0, ℓ, u, f, g!);
 ```
 
 ## 📐Simplex-Box-Constrained Problems
+
 $$
 \begin{aligned}
 \min_x \quad        &f(x)\\
@@ -47,6 +52,7 @@ $$
                     &\ell_j \leq x_j \leq u_j &\forall j \notin \mathcal{S},
 \end{aligned}
 $$
+
 where $\mathcal{S}$ is the set of indices of $x$ in the unit simplex. Given an `S::BitVector`, it is defined as:
 ```julia
 sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
