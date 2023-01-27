@@ -1,35 +1,42 @@
 module Progradio
 
-#using LinearAlgebra: dot, norm
-
-#include("operators.jl")
+include("base.jl")
 
 abstract type ProgradioProblem{F<:AbstractFloat, I<:Integer} end
-include("problems/bcp.jl")
-include("problems/sbcp.jl")
+abstract type ProgradioDirection{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioSearch{F<:AbstractFloat, I<:Integer} end
 
-#abstract type ProgradioDirection end
-#abstract type ProgradioDirectionState{F<:AbstractFloat} end
+abstract type ProgradioDirectionState{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioSearchState{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioIteratorState{F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}} end
+
+#include("iterator.jl")
+
+#include("problems/unconstrained.jl")
+#include("problems/boxConstrained.jl")
+#include("problems/simplexBoxConstrained.jl")
+
 #include("directions/steepestDescent.jl")
 #include("directions/conjugateGradient.jl")
 #include("directions/quasiNewton.jl")
 
-#abstract type ProgradioOptimizer{F<:AbstractFloat, D<:ProgradioDirection} end
-#abstract type ProgradioOptimizerState{F<:AbstractFloat, DS<:ProgradioDirectionState} end
-#include("optimizers/Armijo.jl")
+#include("searches/Armijo.jl")
+#include("searches/ArmijoBox.jl")
+#include("optimizers/ArmijoSimplexBox.jl")
+
 #include("optimizers/Wolfe.jl")
-#=
-include("iterator.jl")
-include("solve.jl")
-include("optimality.jl")
-include("zoo.jl")
-=#
-export BCProblem, SBCProblem
-#=, iterator,
-    SteepestDescent,
-    FletcherReeves, PolakRibiere, HagerZhang,
+
+#include("optimizers/trustRegion.jl")
+
+#include("solve.jl")
+#include("optimality.jl")
+
+#include("zoo.jl")
+
+#export UProblem, BCProblem, SBCProblem,
+    #SteepestDescent,
+    #FletcherReeves, PolakRibiere, HagerZhang,
     #LBFGS,
-    Armijo, #Wolfe, TrustRegion,
-    solve#, optimality, solve_to_optimality
-=#
+    #Armijo, #Wolfe, TrustRegion,
+    #Iterator#, solve#, optimality, solve_to_optimality
 end
