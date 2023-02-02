@@ -20,11 +20,11 @@ using Pkg; Pkg.add("Progradio")
 
 $$
 \begin{aligned}
-\min_x f(x)
+\min_x \hspace{0.5em} f(x)
 \end{aligned}
 $$
 
-where $x \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Given an initial guess `x_0::Vector` and an in-place gradient function `g!`, it is defined as:
+where $x \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Given an initial guess `x_0::Vector` and an in-place gradient function `g!`, the problem is defined as:
 ```julia
 up = UProblem(x_0, f, g!);
 ```
@@ -33,12 +33,12 @@ up = UProblem(x_0, f, g!);
 
 $$
 \begin{aligned}
-\min_x \quad      &f(x)\\
-\text{s.t.} \quad &\ell \leq x \leq u,
+\min_x \hspace{0.5em}      &f(x)\\
+\text{s.t.} \hspace{0.5em} &\ell \leq x \leq u,
 \end{aligned}
 $$
 
-where $\ell, u \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Defined as:
+where $\ell, u \in \mathbb{R}^n$. Given `ℓ::Vector` and `u::Vector`, the problem is defined as:
 ```julia
 bcp = BCProblem(x_0, ℓ, u, f, g!);
 ```
@@ -47,13 +47,13 @@ bcp = BCProblem(x_0, ℓ, u, f, g!);
 
 $$
 \begin{aligned}
-\min_x \quad        &f(x)\\
-\text{s.t.} \quad   &\sum_{j \in \mathcal{S}} x_j = 1, \quad x_j \geq 0 &\forall j \in \mathcal{S},\\
+\min_x \hspace{0.5em}       &f(x)\\
+\text{s.t.} \hspace{0.5em}  &\sum_{j \in \mathcal{S}} x_j = 1, \quad x_j \geq 0 &\forall j \in \mathcal{S},\\
                     &\ell_j \leq x_j \leq u_j &\forall j \notin \mathcal{S},
 \end{aligned}
 $$
 
-where $\mathcal{S}$ is the set of indices of $x$ in the unit simplex. Given an `S::BitVector`, it is defined as:
+where $\mathcal{S}$ is the set of indices of $x$ in the unit simplex. Given `S::BitSet`, the problem is defined as:
 ```julia
 sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
 ```
@@ -63,11 +63,10 @@ sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
 |Direction\Search       |`Armijo()`[^Bertsekas]|`Wolfe()`|`TrustRegion()`|
 |:---------------------:|:--------------------:|:-------:|:-------------:|
 |`SteepestDescent()`    | ♾️📦📐        
-|`CGFletcherReeves()`   | ♾️📦
-|`CGPolakRibiere()`     | ♾️📦
-|`CGHagerZhang()`       | ♾️📦
+|`CGFletcherReeves()`   |
+|`CGPolakRibiere()`     |
+|`CGHagerZhang()`       |
 |`LBFGS()`              |
-|`Newton()`             |
 
 ## Usage
 Recommended usage with `solve()`

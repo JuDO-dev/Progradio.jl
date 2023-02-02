@@ -27,7 +27,7 @@ function norm(a::Vector{F}) where {F<:AbstractFloat}
     return sqrt(sum_of_squares)
 end
 
-# 2-norm over an index set
+# 2-norm over an index BitVector
 function norm(a::Vector{F}, set::BitVector) where {F<:AbstractFloat}
     sum_of_squares = zero(F);
     for j in eachindex(a, set)
@@ -38,16 +38,44 @@ function norm(a::Vector{F}, set::BitVector) where {F<:AbstractFloat}
     return sqrt(sum_of_squares)
 end
 
-# Project into a box
-function project!(x::Vector{F}, ℓ::Vector{F}, u::Vector{F}) where {F<:AbstractFloat}
-    if !(length(x) == length(ℓ) == length(u))
-        throw(DimensionMismatch("sizes of x_0, ℓ, and u must match."))
+# 2-norm over an index BitSet
+function norm(a::Vector{F}, set::BitSet) where {F<:AbstractFloat}
+    sum_of_squares = zero(F);
+    for j in set
+        sum_of_squares += a[j] ^ 2;
     end
+    return sqrt(sum_of_squares)
+end
+
+# Box projection
+function project!(x::Vector{F}, ℓ::Vector{F}, u::Vector{F}) where {F<:AbstractFloat}
     for j in eachindex(x, ℓ, u)
         if x[j] <= ℓ[j]
             x[j] = ℓ[j];
         elseif x[j] >= u[j]
             x[j] = u[j];
+        end
+    end
+    return nothing
+end
+
+# Box projection over an index set
+function project!(x::Vector{F}, ℓ::Vector{F}, u::Vector{F}, set::BitSet) where {F<:AbstractFloat}
+    for j in set
+        if x[j] <= ℓ[j]
+            x[j] = ℓ[j];
+        elseif x[j] >= u[j]
+            x[j] = u[j];
+        end
+    end
+    return nothing
+end
+
+# Orthant projection over an index set
+function project!(x::Vector{F}, set::BitSet) where {F<:AbstractFloat}
+    for j in set
+        if x[j] < 0
+            x[j] = zero(F);
         end
     end
     return nothing
