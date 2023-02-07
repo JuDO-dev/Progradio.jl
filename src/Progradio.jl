@@ -16,7 +16,7 @@ abstract type ProgradioSearchState{F<:AbstractFloat, I<:Integer} end
 include("iterator.jl")
 
 include("directions/steepestDescent.jl")
-#include("directions/conjugateGradient.jl")
+include("directions/conjugateGradient.jl")
 #include("directions/quasiNewton.jl")
 
 include("searches/Armijo.jl")
@@ -34,7 +34,9 @@ include("searches/ArmijoSimplexBox.jl")
 
 export UProblem, BCProblem, SBCProblem,
     Iterator,
-    SteepestDescent, #CGFletcherReeves, CGPolakRibiere, CGHagerZhang, LBFGS,
+    SteepestDescent,
+    ConjugateGradient, FletcherReeves, PolakRibiere, HagerZhang,
+    #QuasiNewton, 
     Armijo#, #Wolfe, TrustRegion,
     #solve, optimality, solve_to_optimality
 end

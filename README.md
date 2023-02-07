@@ -60,13 +60,12 @@ sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
 
 ## Available Methods
 
-|Direction\Search       |`Armijo()`[^Bertsekas]|`Wolfe()`|`TrustRegion()`|
-|:---------------------:|:--------------------:|:-------:|:-------------:|
-|`SteepestDescent()`    | ♾️📦📐        
-|`CGFletcherReeves()`   |
-|`CGPolakRibiere()`     |
-|`CGHagerZhang()`       |
-|`LBFGS()`              |
+|Direction\Search|`Armijo()`|`Wolfe()`|`TrustRegion()`|
+|:-:|:-:|:-:|:-:|
+|`SteepestDescent()`|♾️📦📐[^Bertsekas]|-|-|      
+|`ConjugateGradient()`|♾️📦|-|-|
+|`QuasiNewton()`|-|-|-|
+|`Newton()`|-|-|-|
 
 ## Usage
 Recommended usage with `solve()`
