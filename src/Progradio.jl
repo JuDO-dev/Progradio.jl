@@ -27,16 +27,15 @@ include("searches/ArmijoSimplexBox.jl")
 
 #include("optimizers/trustRegion.jl")
 
-#include("solve.jl")
+include("solve.jl")
 #include("optimality.jl")
 
-#include("zoo.jl")
-
 export UProblem, BCProblem, SBCProblem,
-    Iterator,
+    Iterator, 
     SteepestDescent,
     ConjugateGradient, FletcherReeves, PolakRibiere, HagerZhang,
     #QuasiNewton, 
-    Armijo#, #Wolfe, TrustRegion,
-    #solve, optimality, solve_to_optimality
+    Armijo, #Wolfe, TrustRegion,
+    solve, init, solve!#,
+    #optimality, solve_to_optimality
 end
