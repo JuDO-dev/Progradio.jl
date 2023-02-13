@@ -2,9 +2,9 @@
 struct EmptyProblem{F, I} <: P.ProgradioProblem{F, I} end
 struct EmptyDirection{F, I} <: P.ProgradioDirection{F, I} end
 struct EmptySearch{F, I} <: P.ProgradioSearch{F, I} end
-empty_problem = EmptyProblem{Float64, Int64}();
-empty_direction = EmptyDirection{Float64, Int64}();
-empty_search = EmptySearch{Float64, Int64}();
+empty_problem = EmptyProblem{Float, Int}();
+empty_direction = EmptyDirection{Float, Int}();
+empty_search = EmptySearch{Float, Int}();
 
 @testset "Iterator" begin
     
@@ -25,8 +25,8 @@ end
 # Empty states for problem, direction, search
 struct EmptyDS{F, I} <: P.ProgradioDirectionState{F, I} end
 struct EmptySS{F, I} <: P.ProgradioSearchState{F, I} end
-empty_direction_state = EmptyDS{Float64, Int64}();
-empty_search_state = EmptySS{Float64, Int64}();
+empty_direction_state = EmptyDS{Float, Int}();
+empty_search_state = EmptySS{Float, Int}();
 n_x = 3;
 
 empty_state = P.IteratorState(P.Iterating(), 0,

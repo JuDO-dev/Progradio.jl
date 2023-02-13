@@ -1,9 +1,9 @@
 @testset "Steepest Descent" begin
     
-    sd = SteepestDescent(float_type=Float64, integer_type=Int64);
-    d = ones(Float64, 3);
-    sd_state = P.SteepestDescentState(d; integer_type=Int64);
-    gx = ones(Float64, 3);
+    sd = SteepestDescent(float_type=Float, integer_type=Int);
+    d = ones(Float, 3);
+    sd_state = P.SteepestDescentState(d; integer_type=Int);
+    gx = ones(Float, 3);
     
     test_state = P.IteratorState(P.Iterating(), 0,
         zeros(n_x), Inf, d,

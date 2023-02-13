@@ -1,6 +1,7 @@
 using Test
 using Progradio
 const P = Progradio
+Float = typeof(1.0);
 
 include("base.jl")
 
