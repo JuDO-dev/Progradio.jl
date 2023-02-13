@@ -35,7 +35,42 @@ function direction_state(problem::ProgradioProblem{F, I}, ::ConjugateGradient{F,
     return ConjugateGradientState(zeros(F, n_x), zeros(F, n_x), zeros(F, n_x), 0)
 end
 
-function direction!(state::IteratorState{F, I, DS, SS}, direction::ConjugateGradient{F, I, V}) where
+function direction!(state::IteratorState{F, I, DS, SS}, ::UProblem{F, I}, direction::ConjugateGradient{F, I, V}) where
+    {F<:AbstractFloat, I<:Integer, V<:CGVariant, DS<:ConjugateGradientState{F, I}, SS<:ProgradioSearchState{F, I}}
+
+    # Keep previous direction in memory
+    @. state.direction_state.d_previous = state.direction_state.d;
+
+    # Use steepest descent when restarting
+    if state.direction_state.r ≥ direction.restart || state.i < 1
+        @. state.direction_state.d = -state.gx;
+        state.direction_state.r = 0;
+    else
+        μ = coefficient!(state, direction.variant);
+        μ = isnan(μ) || isinf(μ) ? 0.0 : μ;
+
+        # Compute conjugate direction
+        @. state.direction_state.d = μ * state.direction_state.d_previous - state.gx;
+
+        # Revert to steepest descent if conjugate direction is unbounded
+        gx_dotted = dot(state.gx, state.gx);
+        too_small = -dot(state.direction_state.d, state.gx) ≤ direction.σ_min * gx_dotted;
+        too_large = dot(state.direction_state.d, state.direction_state.d) ≥ direction.σ_max * gx_dotted;
+        if too_small || too_large    
+            @. state.direction_state.d = -state.gx
+            state.direction_state.r = 0;
+        else
+            state.direction_state.r += 1;
+        end
+    end
+
+    # Keep previous gradient in memory
+    @. state.direction_state.gx_previous = state.gx;
+
+    return nothing
+end
+
+function direction!(state::IteratorState{F, I, DS, SS}, ::BCProblem{F, I}, direction::ConjugateGradient{F, I, V}) where
     {F<:AbstractFloat, I<:Integer, V<:CGVariant, DS<:ConjugateGradientState{F, I}, SS<:ProgradioSearchState{F, I}}
 
     # Keep previous direction in memory
@@ -71,6 +106,56 @@ function direction!(state::IteratorState{F, I, DS, SS}, direction::ConjugateGrad
             state.direction_state.r = 0;
         else
             state.direction_state.r += 1;
+        end
+    end
+
+    # Keep previous gradient in memory
+    @. state.direction_state.gx_previous = state.gx;
+
+    return nothing
+end
+
+function direction!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}, direction::ConjugateGradient{F, I, V}) where
+    {F<:AbstractFloat, I<:Integer, V<:CGVariant, DS<:ConjugateGradientState{F, I}, SS<:ProgradioSearchState{F, I}}
+
+    # Keep previous direction in memory
+    @. state.direction_state.d_previous = state.direction_state.d;
+
+    # Use steepest descent when restarting
+    if state.direction_state.r ≥ direction.restart || state.i < 1
+        @. state.direction_state.d = -state.gx;
+        state.direction_state.r = 0;
+    else
+        μ = coefficient!(state, direction.variant);
+        μ = isnan(μ) || isinf(μ) ? 0.0 : μ;
+
+        # Compute conjugate direction for W indices of S̄
+        for j in problem.S̄
+            if state.W[j]
+                state.direction_state.d[j] = μ * state.direction_state.d_previous[j] - state.gx[j];
+            else
+                state.direction_state.d[j] = -state.gx[j];
+            end
+        end
+            
+        # Revert to steepest descent if conjugate direction is unbounded
+        gx_dotted_W = dot(state.gx, state.gx, state.W);
+        too_small = -dot(state.direction_state.d, state.gx, state.W) ≤ direction.σ_min * gx_dotted_W;
+        too_large = dot(state.direction_state.d, state.direction_state.d, state.W) ≥ direction.σ_max * gx_dotted_W;
+        if too_small || too_large    
+            for j in eachindex(state.direction_state.d, state.W)
+                if state.W[j]
+                    state.direction_state.d[j] = -state.gx[j];
+                end
+            end
+            state.direction_state.r = 0;
+        else
+            state.direction_state.r += 1;
+        end
+
+        # Use steepest descent for S indices
+        for j in problem.S
+            state.direction_state.d[j] = -state.gx[j];
         end
     end
 
