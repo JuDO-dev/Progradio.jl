@@ -16,59 +16,73 @@
 using Pkg; Pkg.add("Progradio")
 ```
 
-## Box-Constrained Optimization
+## ♾️Unconstrained Problems
 
-The problem can be formulated as:
-$$\min_x {f(x)} \quad \text{s.t.} \quad x_{\ell} \leq x \leq x_u,$$
-where $x, x_{\ell}, x_u \in \mathbb{R}^n$ and $f: \mathbb{R}^n \rightarrow \mathbb{R}$, near an initial guess $x_0$. Implemented as:
+$$
+\begin{aligned}
+\min_x \hspace{0.5em} f(x)
+\end{aligned}
+$$
 
+where $x \in \mathbb{R}^n$, and $f: \mathbb{R}^n \rightarrow \mathbb{R}$ is smooth. Given an initial guess `x_0::Vector` and an in-place gradient function `g!`, the problem is defined as:
 ```julia
-BCProblem(f, g!, x_ℓ, x_u, x_0);
+up = UProblem(x_0, f, g!);
 ```
-where `g!` is the gradient $\nabla f$ defined in-place.  
 
+## 📦Box-Constrained Problems
 
-### Optimizers
+$$
+\begin{aligned}
+\min_x \hspace{0.5em}      &f(x)\\
+\text{s.t.} \hspace{0.5em} &\ell \leq x \leq u,
+\end{aligned}
+$$
 
-The following methods are implemented for `BCProblem`:
+where $\ell, u \in \mathbb{R}^n$. Given `ℓ::Vector` and `u::Vector`, the problem is defined as:
+```julia
+bcp = BCProblem(x_0, ℓ, u, f, g!);
+```
 
-- `Armijo()` is a line-search optimizer with an Armijo-like[^Bertsekas] condition;
-- [WIP]`Wolfe()` is a line-search optimizer with a Wolfe-like condition;
-- [WIP]`TrustRegion()`.
+## 📐Simplex-Box-Constrained Problems
 
-Each used with a descent direction method:
+$$
+\begin{aligned}
+\min_x \hspace{0.5em}       &f(x)\\
+\text{s.t.} \hspace{0.5em}  &\sum_{j \in \mathcal{S}} x_j = 1, \quad x_j \geq 0 &\forall j \in \mathcal{S},\\
+                    &\ell_j \leq x_j \leq u_j &\forall j \notin \mathcal{S},
+\end{aligned}
+$$
 
-| Direction | Summary | Variants |
-| --- | --- | --- |
-| Steepest Descent | Requires `g!` | `SteepestDescent()`
-| Conjugate Gradient[^Schwartz] | Restarts every $R$ iterations <br> Requires `g!` | `FletcherReeves()` <br> `PolakRibiere()` <br>  `HagerZhang()`[^Hager] |
-| Quasi-Newton | Stores $M$ updates <br> Requires `g!` | [WIP]`LBFGS(M)`[^Nocedal] |
+where $\mathcal{S}$ is the set of indices of $x$ in the unit simplex. Given `S::BitSet`, the problem is defined as:
+```julia
+sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
+```
 
-### Recommended usage with `solve(bcp, optimizer)`
+## Available Methods
+
+|Direction\Search|`Armijo()`|`Wolfe()`|`TrustRegion()`|
+|:-:|:-:|:-:|:-:|
+|`SteepestDescent()`|♾️📦📐[^Bertsekas]|-|-|      
+|`ConjugateGradient()`|♾️📦|-|-|
+|`QuasiNewton()`|-|-|-|
+|`Newton()`|-|-|-|
+
+## Usage
+Recommended usage with `solve()`
 ```julia
 # Problem
-bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
+bcp = BCProblem(x_0, ℓ, u, f, g!);
 
 # Solve
-solve(bcp, Armijo(FletcherReeves(10)))
+solve(bcp, SteepestDescent(), Armijo())
 ```
-
-### Advanced usage with `iterator(bcp, optimizer)`
+Advanced usage with `Iterator`
 ```julia
-# Problem
-bcp = BCProblem(f, g!, x_ℓ, x_u, x_0);
-
 # Iterator
-bci = iterator(bcp, Armijo(FletcherReeves(10)));
+iterator = Iterator(bcp, SteepestDescent(), Armijo());
 
 # Iterate
-collect(bci)
+collect(iterator)
 ```
 
 [^Bertsekas]: D. P. Bertsekas, "Projected Newton methods for optimization problems with simple constraints", SIAM Journal on Control and Optimization, Vol. 20, pp.221-246, 1982.
-
-[^Schwartz]: A. Schwartz and E. Polak, "A family of projected descent methods for optimization problems with simple bounds", Journal of Optimization Theory and Applications, Vol. 92, No. 1, pp. 1-32, 1997.
-
-[^Hager]: W. w. Hager and H. Zhang, "A new conjugate gradient method with guaranteed descent and an efficient line search", SIAM Journal on Optimization, Vol. 16, pp. 170-192, 2005.
-
-[^Nocedal]: J. Nocedal, "Updating quasi-Newton matrices with limited storage", Mathematics of Computation, Vol. 35, pp. 773-782, 1980.
