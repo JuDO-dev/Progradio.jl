@@ -1,13 +1,19 @@
 @testset "Steepest Descent" begin
-    sd = SteepestDescent();
-    sdstate = P.direction_state(3, sd);
     
-    struct TestOptimizerState{F, DS} <: P.ProgradioOptimizerState{F, DS}
-        gx::Vector{F}
-        d::Vector{F}
-    end
-    state = TestOptimizerState{Float64, P.SteepestDescentState{Float64}}([1.0, -2.0, 0.0], zeros(3));
+    sd = SteepestDescent(float_type=Float64, integer_type=Int64);
+    d = ones(Float64, 3);
+    sd_state = P.SteepestDescentState(d; integer_type=Int64);
+    gx = ones(Float64, 3);
+    
+    test_state = P.IteratorState(P.Iterating(), 0,
+        zeros(n_x), Inf, d,
+        zeros(n_x), 0.0, zeros(n_x),
+        sd_state, empty_search_state,
+        falses(n_x), falses(n_x), falses(n_x), trues(n_x),
+        0, 0.0
+    );
 
-    P.direction!(state, sd);
-    @test state.d == [-1.0, 2.0, 0.0]
+    P.direction!(test_state, sd);
+    @test test_state.direction_state.d == [-1.0, -1.0, -1.0];
+
 end

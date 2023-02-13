@@ -7,10 +7,13 @@ struct BCProblem{F, I} <: ProgradioProblem{F, I}
     g!::Function    #gradient (mutating function)
     
     function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, B_tol::F, f::Function, g!::Function; integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
-        # Ensure that ℓ ≤ x_0 ≤ u
+        
+        # Ensure sizes of x_0, ℓ, and u match
         if !(length(x_0) == length(ℓ) == length(u))
             throw(DimensionMismatch("sizes of x_0, ℓ, and u must match."))
         end
+        
+        # Ensure that ℓ ≤ x_0 ≤ u
         for j in eachindex(x_0, ℓ, u)
             if !(ℓ[j] ≤ x_0[j] ≤ u[j])
                 throw(DomainError(x_0[j], string("x_0[", j, "] must satisfy box constraints.")))
