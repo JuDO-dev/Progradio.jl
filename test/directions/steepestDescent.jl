@@ -13,7 +13,10 @@
         0, 0.0
     );
 
-    P.direction!(test_state, sd);
+    struct TestProblem{F, I} <: P.ProgradioProblem{F, I} end
+    test_problem = TestProblem{Float, Int}();
+
+    P.direction!(test_state, test_problem, sd);
     @test test_state.direction_state.d == [-1.0, -1.0, -1.0];
 
 end
