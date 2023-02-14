@@ -115,7 +115,7 @@ function iterate!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I},
     memorize!(state);
 
     # Compute a descent direction
-    direction!(state, direction);
+    direction!(state, problem, direction);
 
     # Projected search for an Armijo-like step
     state.search_state.dϕ0 = dot(state.gx, state.direction_state.d, state.W);

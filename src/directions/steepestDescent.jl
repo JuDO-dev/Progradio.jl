@@ -17,7 +17,7 @@ function direction_state(problem::ProgradioProblem{F, I}, ::SteepestDescent{F, I
     return SteepestDescentState(zeros(F, length(problem.x_0)), integer_type=I)
 end
 
-function direction!(state::IteratorState{F, I, DS, SS}, ::SteepestDescent{F, I}) where
+function direction!(state::IteratorState{F, I, DS, SS}, ::ProgradioProblem{F, I}, ::SteepestDescent{F, I}) where
     {F<:AbstractFloat, I<:Integer, DS<:SteepestDescentState{F, I}, SS<:ProgradioSearchState}
 
     @. state.direction_state.d = -state.gx;
