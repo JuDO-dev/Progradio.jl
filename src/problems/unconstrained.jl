@@ -1,10 +1,10 @@
-struct UProblem{F, I} <: ProgradioProblem{F, I}
-    x_0::Vector{F}  #initial guess
+struct UProblem{F} <: ProgradioProblem{F}
+    x_0::Vector{F}  #guess
     f::Function     #objective
-    g!::Function    #gradient (mutating function)
+    g!::Function    #gradient g!(gx, x)
 
-    function UProblem(x_0::Vector{F}, f::Function, g!::Function; integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
-        return new{F, I}(x_0, f, g!)
+    function UProblem(x_0::Vector{F}, f::Function, g!::Function) where {F<:AbstractFloat}
+        return new{F}(x_0, f, g!)
     end
 end
 

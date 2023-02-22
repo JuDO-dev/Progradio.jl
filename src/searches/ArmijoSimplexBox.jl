@@ -1,5 +1,5 @@
-function initiate(problem::SBCProblem{F, I}, direction::ProgradioDirection{F, I}, search::Armijo{F, I}) where 
-    {F<:AbstractFloat, I<:Integer}
+function initiate(problem::SBCProblem{F}, direction::ProgradioDirection{F}, search::Armijo{F}) where 
+    {F<:AbstractFloat}
 
     # Initialize state
     n_x = length(problem.x_0);
@@ -27,8 +27,8 @@ function initiate(problem::SBCProblem{F, I}, direction::ProgradioDirection{F, I}
     return (state.fx, state)
 end
 
-function remove_simplex!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function remove_simplex!(state::IteratorState{F, DS, SS}, problem::SBCProblem{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Find largest simplex component
     state.x_j̄ = zero(F);
@@ -52,8 +52,8 @@ function remove_simplex!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem
     return nothing
 end
 
-function binding!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function binding!(state::IteratorState{F, DS, SS}, problem::SBCProblem{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Update simplex and box binding tolerances
     @. state.Δx = state.x - state.gx;
@@ -105,8 +105,8 @@ function binding!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I})
 end
 
 
-function iterate!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}, direction::ProgradioDirection{F, I}, search::Armijo{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function iterate!(state::IteratorState{F, DS, SS}, problem::SBCProblem{F}, direction::ProgradioDirection{F}, search::Armijo{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Local coordinate transformation for x
     state.x[state.j̄] = one(F);
@@ -142,8 +142,8 @@ function iterate!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I},
     return nothing
 end
 
-function trial_step!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}, search::Armijo{F, I}, k_trial::I, x_trial::Vector{F}) where
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function trial_step!(state::IteratorState{F, DS, SS}, problem::SBCProblem{F}, search::Armijo{F}, k_trial::Int, x_trial::Vector{F}) where
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Take trial step
     α_trial = search.β ^ k_trial;
@@ -180,8 +180,8 @@ function trial_step!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, 
     end
 end
 
-function revert_simplex!(state::IteratorState{F, I, DS, SS}, problem::SBCProblem{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function revert_simplex!(state::IteratorState{F, DS, SS}, problem::SBCProblem{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Transform x and x_previous
     sum_x = zero(F);

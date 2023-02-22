@@ -1,8 +1,8 @@
 @testset "Steepest Descent" begin
     
-    sd = SteepestDescent(float_type=Float, integer_type=Int);
+    sd = SteepestDescent(float_type=Float);
     d = ones(Float, 3);
-    sd_state = P.SteepestDescentState(d; integer_type=Int);
+    sd_state = P.SteepestDescentState(d);
     gx = ones(Float, 3);
     
     test_state = P.IteratorState(P.Iterating(), 0,
@@ -13,8 +13,8 @@
         0, 0.0
     );
 
-    struct TestProblem{F, I} <: P.ProgradioProblem{F, I} end
-    test_problem = TestProblem{Float, Int}();
+    struct TestProblem{F} <: P.ProgradioProblem{F} end
+    test_problem = TestProblem{Float}();
 
     P.direction!(test_state, test_problem, sd);
     @test test_state.direction_state.d == [-1.0, -1.0, -1.0];

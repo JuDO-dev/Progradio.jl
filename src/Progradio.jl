@@ -2,16 +2,16 @@ module Progradio
 
 include("base.jl")
 
-abstract type ProgradioProblem{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioProblem{F<:AbstractFloat} end
 include("problems/unconstrained.jl")
 include("problems/boxConstrained.jl")
 include("problems/simplexBoxConstrained.jl")
 
-abstract type ProgradioDirection{F<:AbstractFloat, I<:Integer} end
-abstract type ProgradioDirectionState{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioDirection{F<:AbstractFloat} end
+abstract type ProgradioDirectionState{F<:AbstractFloat} end
 
-abstract type ProgradioSearch{F<:AbstractFloat, I<:Integer} end
-abstract type ProgradioSearchState{F<:AbstractFloat, I<:Integer} end
+abstract type ProgradioSearch{F<:AbstractFloat} end
+abstract type ProgradioSearchState{F<:AbstractFloat} end
 
 include("iterator.jl")
 

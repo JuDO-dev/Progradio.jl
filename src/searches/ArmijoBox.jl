@@ -1,5 +1,5 @@
-function initiate(problem::BCProblem{F, I}, direction::ProgradioDirection{F, I}, search::Armijo{F, I}) where 
-    {F<:AbstractFloat, I<:Integer}
+function initiate(problem::BCProblem{F}, direction::ProgradioDirection{F}, search::Armijo{F}) where 
+    {F<:AbstractFloat}
 
     # Initialize state
     n_x = length(problem.x_0);
@@ -21,8 +21,8 @@ function initiate(problem::BCProblem{F, I}, direction::ProgradioDirection{F, I},
     return (state.fx, state)
 end
 
-function binding!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState, SS<:ProgradioSearchState}
+function binding!(state::IteratorState{F, DS, SS}, problem::BCProblem{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState, SS<:ProgradioSearchState}
 
     # Binding tolerance
     @. state.Δx = state.x - state.gx;
@@ -52,8 +52,8 @@ function binding!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}) 
     return nothing
 end
 
-function iterate!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}, direction::ProgradioDirection{F, I}, search::Armijo{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function iterate!(state::IteratorState{F, DS, SS}, problem::BCProblem{F}, direction::ProgradioDirection{F}, search::Armijo{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Keep previous iteration values in memory
     memorize!(state);
@@ -77,8 +77,8 @@ function iterate!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}, 
     return nothing
 end
 
-function trial_step!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}, search::Armijo{F, I}, k_trial::I, x_trial::Vector{F}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function trial_step!(state::IteratorState{F, DS, SS}, problem::BCProblem{F}, search::Armijo{F}, k_trial::Int, x_trial::Vector{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Take trial step 
     α_trial = search.β ^ k_trial;
@@ -96,14 +96,14 @@ function trial_step!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I
     return α_trial, fx_trial, admissible
 end
 
-function is_Armijo(state::IteratorState{F, I, DS, SS}, α::F, ϕα::F, η_A::F, Δϕ0_B::F) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function is_Armijo(state::IteratorState{F, DS, SS}, α::F, ϕα::F, η_A::F, Δϕ0_B::F) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
     
     return ϕα - state.fx_previous ≤ η_A * (α * state.search_state.dϕ0 - Δϕ0_B)
 end
 
-function improve!(state::IteratorState{F, I, DS, SS}, problem::BCProblem{F, I}, search::Armijo{F, I}) where 
-    {F<:AbstractFloat, I<:Integer, DS<:ProgradioDirectionState{F, I}, SS<:ProgradioSearchState{F, I}}
+function improve!(state::IteratorState{F, DS, SS}, problem::BCProblem{F}, search::Armijo{F}) where 
+    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
 
     # Interpolate a new α using the two previous line-search iterations
     α_trial = interpolate(state.fx_previous, state.search_state.α, state.fx, state.search_state.α_2, state.search_state.ϕα_2);

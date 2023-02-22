@@ -1,4 +1,4 @@
-struct BCProblem{F, I} <: ProgradioProblem{F, I}
+struct BCProblem{F} <: ProgradioProblem{F}
     x_0::Vector{F}  #initial guess
     ℓ::Vector{F}    #lower bounds
     u::Vector{F}    #upper bounds
@@ -6,7 +6,7 @@ struct BCProblem{F, I} <: ProgradioProblem{F, I}
     f::Function     #objective
     g!::Function    #gradient (mutating function)
     
-    function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, B_tol::F, f::Function, g!::Function; integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
+    function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, B_tol::F, f::Function, g!::Function) where {F<:AbstractFloat}
         
         # Ensure sizes of x_0, ℓ, and u match
         if !(length(x_0) == length(ℓ) == length(u))
@@ -21,16 +21,16 @@ struct BCProblem{F, I} <: ProgradioProblem{F, I}
         end
 
         # Ensure that B_tol is non-negative
-        if B_tol < zero(F)
+        if B_tol < 0
             throw(DomainError(B_tol, "binding tolerance B_tol must be positive"))
         end
 
         # Proceed with construction
-        return new{F, I}(x_0, ℓ, u, B_tol, f, g!)
+        return new{F}(x_0, ℓ, u, B_tol, f, g!)
     end
 end
 
-function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, f::Function, g!::Function; integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
+function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, f::Function, g!::Function) where {F<:AbstractFloat}
     # Binding tolerance 10% of smallest bound range
     B_tol = one(F);
     for j in eachindex(ℓ, u)
@@ -39,7 +39,7 @@ function BCProblem(x_0::Vector{F}, ℓ::Vector{F}, u::Vector{F}, f::Function, g!
             B_tol = B_tol_j;
         end
     end
-    B_tol *= convert(F, 0.1);
+    B_tol *= F(0.1);
 
-    return BCProblem(x_0, ℓ, u, B_tol, f, g!; integer_type)
+    return BCProblem(x_0, ℓ, u, B_tol, f, g!)
 end

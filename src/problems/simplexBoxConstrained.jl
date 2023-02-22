@@ -1,4 +1,4 @@
-struct SBCProblem{F, I} <: ProgradioProblem{F, I}
+struct SBCProblem{F} <: ProgradioProblem{F}
     x_0::Vector{F}  #initial guess
     S::BitSet       #simplex indices
     S̄::BitSet       #non-simplex indices
@@ -9,8 +9,8 @@ struct SBCProblem{F, I} <: ProgradioProblem{F, I}
     f::Function     #objective
     g!::Function    #gradient (mutating function)
 
-    function SBCProblem(x_0::Vector{F}, S::BitSet, S_tol::F, ℓ::Vector{F}, u::Vector{F}, B_tol::F, f::Function, g!::Function; integer_type::Type{I}=Int64) where 
-        {F<:AbstractFloat, I<:Integer}
+    function SBCProblem(x_0::Vector{F}, S::BitSet, S_tol::F, ℓ::Vector{F}, u::Vector{F}, B_tol::F, f::Function, g!::Function) where 
+        {F<:AbstractFloat}
         
         S̄ = BitSet(setdiff(1:length(x_0), S));
 
@@ -44,12 +44,12 @@ struct SBCProblem{F, I} <: ProgradioProblem{F, I}
         end
 
         # Proceed with construction
-        return new{F, I}(x_0, S, S̄, S_tol, ℓ, u, B_tol, f, g!)
+        return new{F}(x_0, S, S̄, S_tol, ℓ, u, B_tol, f, g!)
     end
 end
 
-function SBCProblem(x_0::Vector{F}, S::BitSet, ℓ::Vector{F}, u::Vector{F}, f::Function, g!::Function; integer_type::Type{I}=Int64) where 
-    {F<:AbstractFloat, I<:Integer}
+function SBCProblem(x_0::Vector{F}, S::BitSet, ℓ::Vector{F}, u::Vector{F}, f::Function, g!::Function) where 
+    {F<:AbstractFloat}
     
     # Binding tolerance 10% of smallest bound range
     B_tol = one(F);
@@ -63,7 +63,7 @@ function SBCProblem(x_0::Vector{F}, S::BitSet, ℓ::Vector{F}, u::Vector{F}, f::
     B_tol *= convert(F, 0.1);
     S_tol = convert(F, 0.1);
 
-    return SBCProblem(x_0, S, S_tol, ℓ, u, B_tol, f, g!; integer_type)
+    return SBCProblem(x_0, S, S_tol, ℓ, u, B_tol, f, g!)
 end
 
 # Pretty printing

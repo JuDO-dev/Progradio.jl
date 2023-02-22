@@ -1,24 +1,24 @@
-struct SteepestDescent{F, I} <: ProgradioDirection{F, I}
+struct SteepestDescent{F} <: ProgradioDirection{F}
     
-    function SteepestDescent(; float_type::Type{F}=Float64, integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
-        return new{F, I}()
+    function SteepestDescent(; float_type::Type{F}=Float64) where {F<:AbstractFloat}
+        return new{F}()
     end
 end
 
-mutable struct SteepestDescentState{F, I} <: ProgradioDirectionState{F, I}
+mutable struct SteepestDescentState{F} <: ProgradioDirectionState{F}
     d::Vector{F}
 
-    function SteepestDescentState(d::Vector{F}; integer_type::Type{I}=Int64) where {F<:AbstractFloat, I<:Integer}
-        return new{F, I}(d)
+    function SteepestDescentState(d::Vector{F};) where {F<:AbstractFloat}
+        return new{F}(d)
     end
 end
 
-function direction_state(problem::ProgradioProblem{F, I}, ::SteepestDescent{F, I}) where {F<:AbstractFloat, I<:Integer}
-    return SteepestDescentState(zeros(F, length(problem.x_0)), integer_type=I)
+function direction_state(problem::ProgradioProblem{F}, ::SteepestDescent{F}) where {F<:AbstractFloat}
+    return SteepestDescentState(zeros(F, length(problem.x_0)))
 end
 
-function direction!(state::IteratorState{F, I, DS, SS}, ::ProgradioProblem{F, I}, ::SteepestDescent{F, I}) where
-    {F<:AbstractFloat, I<:Integer, DS<:SteepestDescentState{F, I}, SS<:ProgradioSearchState}
+function direction!(state::IteratorState{F, DS, SS}, ::ProgradioProblem{F}, ::SteepestDescent{F}) where
+    {F<:AbstractFloat, DS<:SteepestDescentState{F}, SS<:ProgradioSearchState}
 
     @. state.direction_state.d = -state.gx;
     return nothing
