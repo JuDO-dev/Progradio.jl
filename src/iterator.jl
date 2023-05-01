@@ -1,121 +1,77 @@
-# Implementing julia's iteration interface
-struct Iterator{F<:AbstractFloat, P<:ProgradioProblem{F}, D<:ProgradioDirection{F}, S<:ProgradioSearch{F}}
+struct Iterator{R<:Real, P<:Problem, A<:Algorithm}
     problem::P
-    direction::D
-    search::S
-    # Termination
+    algorithm::A
     i_max::Int
-    x_tol::F
-    f_tol::F
-    g_tol::F
-    
-    function Iterator(problem::P, direction::D, search::S; i_max::Int=1000, x_tol::F=1e-6, f_tol::F=1e-6, g_tol::F=1e-6) where 
-        {F<:AbstractFloat, P<:ProgradioProblem{F}, D<:ProgradioDirection{F}, S<:ProgradioSearch{F}}
+    g_tol::R
+
+    function Iterator(problem::P, algorithm::A; i_max::Integer=10_000, g_tol::R=1e-8) where {R, P, A}
+
+        i_max > 0 ? nothing : throw(DomainError(i_max, "Ensure"));
+        g_tol > 0 ? nothing : throw(DomainError(g_tol, "Ensure"));
         
-        if i_max < 0
-            throw(DomainError(i_max, "Maximum number of iterations must not be negative."))
-        end
-        if x_tol ≤ zero(F) || f_tol ≤ zero(F) || g_tol ≤ zero(F)
-            throw(DomainError([x_tol, f_tol, g_tol], "All termination tolerances must be positive."))
-        end
-        return new{F, P, D, S}(problem, direction, search, i_max, x_tol, f_tol, g_tol)
+        return new{R, P, A}(problem, algorithm, i_max, g_tol)
     end
 end
 
+Base.eltype(::Iterator{R, P, A}) where {R, P, A} = R;
 Base.IteratorSize(::Iterator) = Base.SizeUnknown();
-Base.eltype(::Iterator{F, P, D, S}) where {F<:AbstractFloat, P, D, S} = F;
 
-struct Iterating end
-struct Converged end
-struct Exhausted end
+@enum Status iterating converged exhausted;
 
-mutable struct IteratorState{F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-    status::Union{Iterating, Converged, Exhausted}
+mutable struct IteratorState{R<:Real, X<:AbstractVector{R}, SS<:ConstraintSetState, AS<:AlgorithmState}
+    status::Status
     i::Int
-    x::Vector{F}
-    fx::F
-    gx::Vector{F}
-    x_previous::Vector{F}
-    fx_previous::F
-    Δx::Vector{F}
-    direction_state::DS
-    search_state::SS
-    # Box
-    B_ℓ::BitVector
-    B_u::BitVector
-    B::BitVector
-    W::BitVector
-    # Simplex
-    j̄::Int
-    x_j̄::F
+    x::X
+    fx::R
+    gx::X
+    set_state::SS
+    algorithm_state::AS
+    x_previous::X
+    fx_previous::R
 end
 
-# First iteration
-function Base.iterate(iterator::Iterator{F, P, D, S}) where 
-    {F<:AbstractFloat, P<:ProgradioProblem{F}, D<:ProgradioDirection, S<:ProgradioSearch}
+function build_state(iterator::Iterator{R, P, A}) where {R, P, A}
 
-    return initiate(iterator.problem, iterator.direction, iterator.search)
+    x_guess = iterator.problem.x_guess;
+
+    return IteratorState(iterating, 0, deepcopy(x_guess), typemax(R), zero(x_guess),
+        build_state(x_guess, iterator.problem.set), build_state(x_guess, iterator.algorithm),
+        zero(x_guess), typemax(R)
+    );
 end
 
-# Remaining iterations
-function Base.iterate(iterator::Iterator{F, P, D, S}, state::IteratorState{F, DS, SS}) where 
-    {F<:AbstractFloat, P<:ProgradioProblem{F}, D<:ProgradioDirection{F}, S<:ProgradioSearch{F}, 
-    DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
+function Base.iterate(iterator::Iterator)
+
+    state = build_state(iterator);
+    
+    state.fx = iterator.problem.f(state.x);
+    iterator.problem.g!(state.gx, state.x);
+    binding!(state, iterator.problem.set);
+
+    return (state.fx, state) 
+end
+
+function Base.iterate(iterator::Iterator, state::IteratorState)
 
     if state.i >= iterator.i_max
-        state.status = Exhausted();
+        state.status = exhausted;
         return nothing
-    elseif state.i > 1 && converged!(state, iterator.x_tol, iterator.f_tol, iterator.g_tol, iterator.problem)
-        state.status = Converged();
+
+    elseif has_converged(state, iterator.g_tol, iterator.problem.set)
+        state.status = converged;
         return nothing
-    else
-        iterate!(state, iterator.problem, iterator.direction, iterator.search);
-        state.i += one(I);
+
+    else 
+        memorize!(state);
+        iterate_algorithm!(state, iterator.problem, iterator.algorithm);
+        state.i += 1;
         return (state.fx, state)
     end
 end
 
-# Convergence tests
-function converged!(state::IteratorState{F, DS, SS}, x_tol::F, f_tol::F, g_tol::F, problem::ProgradioProblem{F}) where 
-    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-
-    if !f_converged(state, f_tol, problem)
-        return false
-    elseif !g_converged(state, g_tol, problem)
-        return false
-    elseif !x_converged!(state, x_tol, problem)
-        return false
-    else
-        return true
-    end
+function memorize!(state::IteratorState)
+    
+    @. state.x_previous = state.x;
+    state.fx_previous = state.fx;
+    return nothing
 end
-
-function x_converged!(state::IteratorState{F, DS, SS}, x_tol::F, ::ProgradioProblem{F}) where 
-    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-
-    @. state.Δx = state.x - state.x_previous;
-    norm_Δx = norm(state.Δx);
-    return norm_Δx / (1 + norm_Δx) < x_tol ? true : false
-end
-
-function f_converged(state::IteratorState{F, DS, SS}, f_tol::F, ::ProgradioProblem{F}) where 
-    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-
-    return abs(state.fx - state.fx_previous) / (1 + abs(state.fx)) < f_tol ? true : false
-end
-
-function g_converged(state::IteratorState{F, DS, SS}, g_tol::F, ::ProgradioProblem{F}) where 
-    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-
-    return norm(state.gx, state.W) / (sum(state.W) * (1 + abs(state.fx))) < g_tol ? true : false
-end
-
-function g_converged(state::IteratorState{F, DS, SS}, g_tol::F, ::UProblem{F}) where 
-    {F<:AbstractFloat, DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
-
-    return norm(state.gx) / (length(state.x) * (1 + abs(state.fx))) < g_tol ? true : false
-end
-
-# Pretty printing
-Base.show(io::IO, ::Iterator{F, P, D, S}) where {F, P, D, S} = print(io, "Iterator{", F, ",", I, "}");
-Base.show(io::IO, state::IteratorState{F, DS, SS}) where {F, DS, SS} = print(io, "IteratorState{", F, ",", I, "} at iteration ", state.i, " with f(x) = ", state.fx);

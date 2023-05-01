@@ -1,30 +1,24 @@
-# Implementing the CommonSolve interface
-function solve(problem::ProgradioProblem{F}, direction::ProgradioDirection{F}, search::ProgradioSearch{F}; 
-    i_max::Int=1000, x_tol::F=1e-6, f_tol::F=1e-6, g_tol::F=1e-6) where {F<:AbstractFloat}
+function init(problem::Problem, algorithm::Algorithm; i_max::Integer=10_000, g_tol::Real=1e-8)
 
-    iterator, state = init(problem, direction, search; i_max=i_max, x_tol=x_tol, f_tol=f_tol, g_tol=g_tol);
-    return solve!(iterator, state)
-end
-
-function init(problem::ProgradioProblem{F}, direction::ProgradioDirection{F}, search::ProgradioSearch{F}; 
-    i_max::Int=1000, x_tol::F=1e-6, f_tol::F=1e-6, g_tol::F=1e-6) where {F<:AbstractFloat}
-
-    iterator = Iterator(problem, direction, search; i_max=i_max, x_tol=x_tol, f_tol=f_tol, g_tol=g_tol);
+    iterator = Iterator(problem, algorithm; i_max, g_tol);
     _, state = iterate(iterator);
-    return iterator, state
+    return (iterator, state)
 end
 
-function solve!(iterator::Iterator{F, P, D, S}, state::IteratorState{F, DS, SS}) where 
-    {F<:AbstractFloat, P<:ProgradioProblem{F}, D<:ProgradioDirection{F}, S<:ProgradioSearch{F},
-    DS<:ProgradioDirectionState{F}, SS<:ProgradioSearchState{F}}
+function solve!(iterator::Iterator, state::IteratorState)
 
     while true
         next = iterate(iterator, state);
-        if next !== nothing
-            (_, state) = next;
-        else
+        
+        if next isa Nothing
             break
+        else
+            _, state = next;
         end
     end
     return state
 end
+
+solve(problem::Problem, algorithm::Algorithm; i_max::Integer=10_000, g_tol::Real=1e-8) = solve!(
+    init(problem, algorithm; i_max, g_tol)...
+);

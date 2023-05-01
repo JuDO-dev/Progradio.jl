@@ -1,41 +1,42 @@
 module Progradio
 
-include("base.jl")
+abstract type ConstraintSet{R<:Real, X<:AbstractVector{R}} end
+abstract type ConstraintSetState end
 
-abstract type ProgradioProblem{F<:AbstractFloat} end
-include("problems/unconstrained.jl")
-include("problems/boxConstrained.jl")
-include("problems/simplexBoxConstrained.jl")
+abstract type Problem{R<:Real, X<:AbstractVector{R}} end
 
-abstract type ProgradioDirection{F<:AbstractFloat} end
-abstract type ProgradioDirectionState{F<:AbstractFloat} end
+abstract type Direction end
+abstract type DirectionState end
 
-abstract type ProgradioSearch{F<:AbstractFloat} end
-abstract type ProgradioSearchState{F<:AbstractFloat} end
+abstract type LineSearch end
+abstract type LineSearchState end
+
+abstract type Algorithm end
+abstract type AlgorithmState end
 
 include("iterator.jl")
+export Iterator
+
+include("box.jl")
+export Box
+
+include("problems.jl")
+export NLProblem
 
 include("directions/steepestDescent.jl")
 include("directions/conjugateGradient.jl")
-#include("directions/quasiNewton.jl")
+export SteepestDescent, ConjugateGradient, FletcherReeves, PolakRibiere, HagerZhang
 
-include("searches/Armijo.jl")
-include("searches/ArmijoBox.jl")
-include("searches/ArmijoSimplexBox.jl")
+include("line_searches/armijo.jl")
+# # #include("line_searches/Wolfe.jl")
+export Armijo#, Wolfe
 
-#include("optimizers/Wolfe.jl")
-
-#include("optimizers/trustRegion.jl")
+include("algorithms/two_metric.jl")
+export TwoMetric
 
 include("solve.jl")
-#include("optimality.jl")
+export solve, init, solve!
 
-export UProblem, BCProblem, SBCProblem,
-    Iterator, 
-    SteepestDescent,
-    ConjugateGradient, FletcherReeves, PolakRibiere, HagerZhang,
-    #QuasiNewton, 
-    Armijo, #Wolfe, TrustRegion,
-    solve, init, solve!#,
-    #optimality, solve_to_optimality
+include("utils.jl")
+
 end

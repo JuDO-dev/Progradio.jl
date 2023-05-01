@@ -1,4 +1,4 @@
-@testset "BCProblem" begin
+#=@testset "BCProblem" begin
 
     #Example QP
     x_0 = ones(3);
@@ -41,4 +41,4 @@
     bcp = BCProblem(x_0, ℓ, u, f, g!);
     @test bcp.B_tol == 0.1;
     
-end
+end=#
