@@ -8,7 +8,7 @@ mutable struct TwoMetricState{DS<:DirectionState, LSS<:LineSearchState} <: Algor
     line_search_state::LSS
 end
 
-build_state(x::AbstractVector, tm::TwoMetric) = TwoMetricState(build_state(x, tm.direction), build_state(x, tm.line_search));
+build_state(x::AbstractArray, tm::TwoMetric) = TwoMetricState(build_state(x, tm.direction), build_state(x, tm.line_search));
 
 function iterate_algorithm!(state::IteratorState, problem, algorithm)
 
@@ -18,7 +18,7 @@ function iterate_algorithm!(state::IteratorState, problem, algorithm)
 
     problem.g!(state.gx, state.x);
 
-    binding!(state, problem.set);
+    binding!(state, problem.constraints);
 
     return nothing
 end

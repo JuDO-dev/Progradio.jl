@@ -1,8 +1,8 @@
 using Test
 using Progradio
-const P = Progradio
+const P = Progradio;
 
-include("box.jl")
+include("constraints/box.jl")
 
 include("utils.jl")
 

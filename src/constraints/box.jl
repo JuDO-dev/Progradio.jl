@@ -1,9 +1,9 @@
-struct Box{R, X} <: ConstraintSet{R, X}
-    ℓ::X
-    u::X
-    B_tol::R
+struct Box{T} <: Constraints{T}
+    ℓ::Vector{T}
+    u::Vector{T}
+    B_tol::T
 
-    function Box(ℓ::X, u::X, B_tol::R) where {R<:Real, X<:AbstractVector{R}}
+    function Box(ℓ::V, u::V, B_tol::T) where {T<:Real, V<:Vector{T}}
 
         B_tol ≥ 0               ? nothing : throw(DomainError(B_tol,        "Ensure"));
         length(ℓ) == length(u)  ? nothing : throw(DimensionMismatch(        "Ensure"));
@@ -12,14 +12,14 @@ struct Box{R, X} <: ConstraintSet{R, X}
             u[j] ≥ ℓ[j]         ? nothing : throw(DomainError((ℓ[j], u[j]), "Ensure "));
         end
 
-        return new{R, X}(ℓ, u, B_tol)
+        return new{T}(ℓ, u, B_tol)
     end
 end
 
-function Box(ℓ::X, u::X) where {R<:Real, X<:AbstractVector{R}}
+function Box(ℓ::V, u::V) where {T<:Real, V<:Vector{T}}
 
-    Δx_min = one(R);
-    Δx_j = zero(R);
+    Δx_min = one(T);
+    Δx_j = zero(T);
     
     for j in eachindex(ℓ, u)
         Δx_j = abs(u[j] - ℓ[j]);
@@ -33,7 +33,7 @@ function Box(ℓ::X, u::X) where {R<:Real, X<:AbstractVector{R}}
     return Box(ℓ, u, Δx_min / 10)
 end
 
-function is_inside(x::X, box::Box{R, X}) where {R<:Real, X<:AbstractVector{R}}
+function is_inside(x::X, box::Box{T}) where {T<:Real, N, X<:AbstractArray{T, N}}
 
     for j in eachindex(box.ℓ, x, box.u)
         if !(box.ℓ[j] ≤ x[j] ≤ box.u[j])
@@ -44,18 +44,18 @@ function is_inside(x::X, box::Box{R, X}) where {R<:Real, X<:AbstractVector{R}}
     return true
 end
 
-mutable struct BoxState <: ConstraintSetState
+mutable struct BoxState <: ConstraintsState
     B_ℓ::BitVector
     B_u::BitVector
     B::BitVector
     W::BitVector
 end
 
-build_state(x::AbstractVector, ::Box) = BoxState(falses(length(x)), falses(length(x)), falses(length(x)), trues(length(x)));
+build_state(x::AbstractArray, ::Box) = BoxState(falses(length(x)), falses(length(x)), falses(length(x)), trues(length(x)));
 
-function binding!(state::IteratorState{R, X, AS, SS}, box::Box{R, X}) where {R, X, AS, SS}
+function binding!(state::IteratorState, box::Box)
 
-    box_state = state.set_state;
+    box_state = state.constraints_state;
     
     for j in eachindex(box.ℓ, state.x, box.u)
         if box.ℓ[j] ≤ state.x[j] ≤ (box.ℓ[j] + box.B_tol) && state.gx[j] > 0
@@ -84,7 +84,7 @@ end
 function has_converged(state::IteratorState, g_tol::Real, ::Box)
 
     for j in eachindex(state.gx)
-        if state.set_state.W[j]
+        if state.constraints_state.W[j]
             if abs(state.gx[j]) > g_tol
                 return false
             end
@@ -93,7 +93,7 @@ function has_converged(state::IteratorState, g_tol::Real, ::Box)
     return true
 end
 
-function project!(x::X, box::Box{R, X}) where {R, X}
+function project!(x::X, box::Box{T}) where {T<:Real, N, X<:AbstractArray{T, N}}
     
     for j in eachindex(x, box.ℓ, box.u)
         if x[j] <= box.ℓ[j]
@@ -106,7 +106,7 @@ function project!(x::X, box::Box{R, X}) where {R, X}
     return nothing
 end
 
-function project!(x::X, box::Box{R, X}, bit_set::BitSet) where {R, X}
+function project!(x::X, box::Box{T}, bit_set::BitSet) where {T<:Real, N, X<:AbstractArray{T, N}}
 
     for j in bit_set
         if x[j] <= box.ℓ[j]

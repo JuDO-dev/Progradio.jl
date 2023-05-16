@@ -1,13 +1,13 @@
-dot(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}) = sum(a[j] * b[j] for j in eachindex(a, b));
+dot(a::AbstractArray{T, NA}, b::AbstractArray{T, NB}) where {T<:Number, NA, NB} = sum(a[j] * b[j] for j in eachindex(a, b));
 
-dot(a::AbstractVector{R}, b::AbstractVector{R}, bit_vector::BitVector) where {R<:Real} = sum(
+dot(a::AbstractArray{T, NA}, b::AbstractArray{T, NB}, bit_vector::BitVector) where {T<:Number, NA, NB} = sum(
     a[j] * b[j] for j in eachindex(a, b, bit_vector) if bit_vector[j];
-    init=zero(R)
+    init=zero(T)
 );
 
-norm2(a::AbstractVector{<:Real}) = sqrt(sum(a[j]^2 for j in eachindex(a)));
+norm2(a::AbstractArray{T, N}) where {T<:Number, N} = sqrt(sum(a[j]^2 for j in eachindex(a)));
 
-norm2(a::AbstractVector{R}, bit_vector::BitVector) where {R<:Real} = sqrt(sum(
+norm2(a::AbstractArray{T, N}, bit_vector::BitVector) where {T<:Number, N} = sqrt(sum(
     a[j]^2 for j in eachindex(a, bit_vector) if bit_vector[j];
-    init=zero(R)
+    init=zero(T)
 ));

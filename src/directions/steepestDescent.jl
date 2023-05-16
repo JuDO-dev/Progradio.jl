@@ -1,10 +1,12 @@
 struct SteepestDescent <: Direction end
 
-mutable struct SteepestDescentState{X<:AbstractVector} <: DirectionState
-    d::X
+mutable struct SteepestDescentState{T} <: DirectionState{T}
+    d::Vector{T}
 end
 
-build_state(x::AbstractVector, ::SteepestDescent) = SteepestDescentState(zero(x));
+build_state(x::X, ::SteepestDescent) where {T<:Real, N, X<:AbstractArray{T, N}} =
+    SteepestDescentState(Vector{T}(undef, length(x))
+);
 
 function direction!(state::IteratorState, ::SteepestDescent)
     
