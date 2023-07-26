@@ -118,3 +118,18 @@ function project!(x::X, box::Box{T}, bit_set::BitSet) where {T<:Real, N, X<:Abst
 
     return nothing
 end
+
+function kinkDist!(κ::X, x0::X, d::X, box::Box{T}) where {T<:Real, N, X<:AbstractArray{T, N}}
+
+    for j in eachindex(d, box.ℓ, box.u)
+        if d[j] > 0
+            κ[j] = (box.u[j] - x0[j])/d[j];
+        elseif d[j] < 0
+            κ[j] = (box.ℓ[j] - x0[j])/d[j];
+        else
+            κ[j] = Inf
+        end
+    end
+
+    return nothing
+end

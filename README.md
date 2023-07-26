@@ -60,10 +60,10 @@ sbcp = SBCProblem(x_0, S, ℓ, u, f, g!);
 
 ## Available Methods
 
-|Direction\Search|`Armijo()`|`Wolfe()`|`TrustRegion()`|
+|Direction\Search|`Armijo()`|`Wolfe()`[^Ferry]|`TrustRegion()`|
 |:-:|:-:|:-:|:-:|
-|`SteepestDescent()`|♾️📦📐[^Bertsekas]|-|-|      
-|`ConjugateGradient()`|♾️📦|-|-|
+|`SteepestDescent()`|♾️📦📐[^Bertsekas]|♾️📦|-|      
+|`ConjugateGradient()`|♾️📦|♾️📦|-|
 |`QuasiNewton()`|-|-|-|
 |`Newton()`|-|-|-|
 
@@ -86,3 +86,4 @@ collect(iterator)
 ```
 
 [^Bertsekas]: D. P. Bertsekas, "Projected Newton methods for optimization problems with simple constraints", SIAM Journal on Control and Optimization, Vol. 20, pp.221-246, 1982.
+[^Ferry]: M. W. Ferry, P. E. Gill, E. Wong, and M. Zhang, "A class of projected-search methods for boundconstrained optimization", Center for Computational Mathematics Report CCoM, pp. 20–07, 2020.
