@@ -12,7 +12,7 @@ norm2(a::AbstractArray{T, N}, bit_vector::BitVector) where {T<:Number, N} = sqrt
     init=zero(T)
 ));
 
-function binding_from_indices!(W::BitVector, κ_index::Union{Vector{I},SubArray{I, 1, Vector{I}, Tuple{UnitRange{Int64}},true}}, n::I) where I<:Integer
+function binding_from_indices!(W::BitVector, κ_index::Union{Vector{I},SubArray{I, 1, Vector{I}, Tuple{UnitRange{Int}},true}}, n::I) where I<:Integer
     W = falses(n);
     for i in κ_index
         if i <= n
